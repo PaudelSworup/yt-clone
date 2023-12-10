@@ -8,10 +8,17 @@ export const signup = async (req, res, next) => {
   try {
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(req.body.password, salt);
-    const newUser = new User({ ...req.body, password: hash });
+    let newUser = new User({ ...req.body, password: hash });
 
-    await newUser.save();
-    res.status(200).send("User has been created!");
+    newUser = await newUser.save();
+    if (!newUser) {
+      returnres
+        .status(400)
+        .json({ error: "something went wrong", success: false });
+    }
+    return res
+      .status(200)
+      .send({ message: "User has been created!", success: true });
   } catch (err) {
     next(err);
   }
